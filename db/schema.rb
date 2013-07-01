@@ -34,13 +34,6 @@ ActiveRecord::Schema.define(:version => 20130623202749) do
     t.datetime "updated_at",        :null => false
   end
 
-  create_table "avatar_avatars", :force => true do |t|
-    t.string   "url"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-    t.integer  "owner_id"
-  end
-
   create_table "channels", :force => true do |t|
     t.text     "name"
     t.datetime "created_at", :null => false
