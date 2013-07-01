@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130315214129) do
+ActiveRecord::Schema.define(:version => 20130623202749) do
 
   create_table "activities", :force => true do |t|
     t.text     "content"
@@ -32,6 +32,13 @@ ActiveRecord::Schema.define(:version => 20130315214129) do
     t.datetime "file_updated_at"
     t.datetime "created_at",        :null => false
     t.datetime "updated_at",        :null => false
+  end
+
+  create_table "avatar_avatars", :force => true do |t|
+    t.string   "url"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+    t.integer  "owner_id"
   end
 
   create_table "channels", :force => true do |t|
@@ -81,6 +88,7 @@ ActiveRecord::Schema.define(:version => 20130315214129) do
     t.string   "username"
     t.boolean  "is_admin"
     t.string   "registration_status",    :default => "active"
+    t.string   "avatar_url"
   end
 
   add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true

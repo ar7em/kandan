@@ -1,3 +1,6 @@
+require 'net/http'
+require 'uri'
+
 class User < ActiveRecord::Base
   extend Enumerize
 
@@ -13,6 +16,7 @@ class User < ActiveRecord::Base
   after_destroy :ensure_at_least_one_admin
   
   validates :username, :presence => true, :uniqueness => true
+  validate :check_external_avatar
   
   # Kandan.devise_modules is defined in config/initializers/kandan.rb
   devise devise *Kandan.devise_modules
@@ -72,6 +76,38 @@ class User < ActiveRecord::Base
 
   def suspend!
     self.suspend && self.save!
+  end
+
+  # Check if avatar size does not exceed setting paramater :external_avatar_max_size
+  # and if image extension is allowed
+  def check_external_avatar
+    if self.avatar_url
+      uri = URI(avatar_url)
+
+      # Check for file extension
+      extension = File.extname(uri.path)
+      unless Kandan::Config.options[:external_avatar_formats].include? extension.downcase
+        errors.add(:avatar_url, "extension is invalid")
+      end
+
+      # Check for file size
+      Net::HTTP.start(uri.host) do |http|
+        begin
+          response = http.request_head(uri.to_s)
+          file_size = response['content-length']
+
+          size_in_bounds = Integer(file_size).between?(1, Kandan::Config.options[:external_avatar_max_size])
+          unless size_in_bounds
+            errors.add(:avatar_url, "image size is out of bounds (maximum %{max_size} bytes)" % {:max_size => Kandan::Config.options[:external_avatar_max_size]})
+          end
+          puts '====================+!!!!!!!!!!+==============='
+          puts file_size
+        rescue
+          errors.add(:avatar_url, "is invalid")
+        end
+      end
+
+    end
   end
 
 end
