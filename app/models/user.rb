@@ -81,7 +81,7 @@ class User < ActiveRecord::Base
   # Check if avatar size does not exceed setting paramater :external_avatar_max_size
   # and if image extension is allowed
   def check_external_avatar
-    if self.avatar_url
+    if self.avatar_url and self.avatar_url.length > 0
       uri = URI(avatar_url)
 
       # Check for file extension
@@ -100,8 +100,7 @@ class User < ActiveRecord::Base
           unless size_in_bounds
             errors.add(:avatar_url, "image size is out of bounds (maximum %{max_size} bytes)" % {:max_size => Kandan::Config.options[:external_avatar_max_size]})
           end
-          puts '====================+!!!!!!!!!!+==============='
-          puts file_size
+
         rescue
           errors.add(:avatar_url, "is invalid")
         end
